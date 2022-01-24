@@ -5,13 +5,41 @@
 
 .pell-content {
     background-color: #ECECEC;
+    height: auto !important;
+    min-height: 4.5em;
 }
 
 .pell {
-    height: 150px;
+    height: auto;
 }
 
 html {
     font-family: Arial, Helvetica, sans-serif;
     font-size: 15px;
+    vertical-align: baseline;
+}
+
+.idcol {
+    width: 50px;
+}
+
+.completedDate {
+    color: green;
+    font-weight: 400;
+}
+
+.notCompletedDate {
+    color: red;
+    font-weight: bold;
+}
+
+.arrowButtons {
+    padding: 2px !important;
+}
+
+main {
+    height: -webkit-fill-available;
+    max-height: 100vh;
+    overflow-x: auto;
+    overflow-y: hidden;
 }
