@@ -10,6 +10,7 @@
     <meta name="author" content="Miles Liu">
 
 
+    <link rel="icon" type="image/x-icon" href="{{url_for('static', filename='assets/favicon.ico')}}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
@@ -29,11 +30,15 @@
 </head>
 
 <body>
+
+    <audio id="ding" src="{{url_for('static', filename='assets/ding.wav') }}" preload="auto"></audio>
+
     <div id="vue-app">
+
         <div class="container-xl">
 
             <div class="container">
-                <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom row">
+                <header class="d-flex flex-wrap justify-content-center py-3 row">
                     <a href="/"
                         class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-dark text-decoration-none col col-lg-3">
                         <div class="col-sm-auto">
@@ -46,7 +51,7 @@
                         <div class="input-group justify-content-end">
                             <button v-for="foldername in Object.keys(items)" v-bind:key="foldername"
                                 v-on:click="changeActiveFolder(foldername)" v-html="foldername"
-                                class="btn input-group-prepend "
+                                class="btn input-group-prepend toolbar"
                                 v-bind:class="foldername === selectedFolder ? 'btn-primary' : 'btn-outline-secondary'"></button>
                             <button class="btn btn-outline-secondary" v-on:click="addFolder">
                                 <i class="bi bi-folder-plus"></i>
@@ -54,16 +59,56 @@
                         </div>
                     </div>
                 </header>
+                <div id="filterRow" class="row border-bottom pb-2">
+                    <div class="input-group">
+                        <label class="input-group-text toolbar" for="item-type-filter">Item Type</label>
+                        <select class="custom-select toolbar" id="item-type-filter">
+                            <option value="0" selected>All</option>
+                            <option value="1">Todos only</option>
+                        </select>
+
+                        <label class="input-group-text toolbar" for="item-priority-filter">Priority</label>
+                        <select class="custom-select toolbar" id="item-priority-filter">
+                            <option value="0" selected>All</option>
+                            <option value="4">4 and above</option>
+                            <option value="3">3 and above</option>
+                            <option value="2">2 and above</option>
+                            <option value="1">1 only</option>
+                        </select>
+
+                        <label class="input-group-text toolbar" for="item-date-filter">Due Date</label>
+                        <select class="custom-select toolbar" id="item-date-filter">
+                            <option value="-1" selected>All</option>
+                            <option value="0">Overdue</option>
+                            <option value="1">1 Day</option>
+                            <option value="2">2 Days</option>
+                            <option value="7">7 Days</option>
+                            <option value="14">14 Days</option>
+                            <option value="30">30 Days</option>
+                        </select>
+
+                        <label class="input-group-text toolbar" for="item-finish-filter">Completion</label>
+                        <select class="custom-select toolbar" id="item-finish-filter">
+                            <option value="0" selected>All</option>
+                            <option value="1">Incomplete</option>
+                        </select>
+
+
+                        <button class="btn btn-outline-secondary toolbar" v-on:click="refresh">
+                            Apply
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div class="container">
+            <div class="container pt-2" id="mainContainer">
                 <div class="row">
                     <div class="col col-sm-6">
                         <h4 class="d-inline mx-3" style="vertical-align: baseline;">[[selectedFolder]]</h4>
-                        <button class="btn btn-sm btn-outline-secondary d-inline my-3" v-on:click="editFolderName">
+                        <button class="btn btn-sm btn-outline-secondary d-inline my-3 UIbtn" v-on:click="editFolderName">
                             <i class="bi bi-pencil"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-secondary d-inline my-3" v-on:click="deleteFolder">
+                        <button class="btn btn-sm btn-outline-secondary d-inline my-3 UIbtn" v-on:click="deleteFolder">
                             <i class="bi bi-trash"></i>
                         </button>
                         <div class="d-inline invisible" id="edit-folder-name">
@@ -75,40 +120,40 @@
                 <item v-for="item in items[selectedFolder]" v-bind:item="item" v-bind:key="item.item_id"></item>
             </div>
 
-            <div v-bind:class="">
-                <hr>
+            <div class="editBoxWrapper container-xl border py-3  invisible" id="editBoxWrapper">
+                <div class="toolbar">Editing: [[editingID]]</div>
                 <div class="input-group mb-3">
                     <div class="input-group-prepend">
-                        <label class="input-group-text" for="typeSelect">New Item Type</label>
+                        <label class="input-group-text toolbar" for="typeSelect">New Item Type</label>
                     </div>
-                    <select class="custom-select px-4 form-control" id="typeSelect">
+                    <select class="custom-select px-4 form-control toolbar" id="typeSelect">
                         <option value="TODO" selected>To-do</option>
                         <option value="NOTE">Note</option>
                     </select>
-                    <div><span class="input-group-text"> Due date: </span></div>
-                    <input class="px-4 form-control" type="date" id="dueDateSelect" name="dueDate"></input>
+                    <div><span class="input-group-text toolbar"> Due date: </span></div>
+                    <input class="px-4 form-control toolbar" type="date" id="dueDateSelect" name="dueDate"></input>
 
                 </div>
                 <div id="editor" class="pell mb-3"></div>
                 <div class="input-group mb-3">
                     <div><span class="input-group-prepend input-group-text">New item will be: </span></div>
-                    <select class="custom-select px-4 form-control" id="relationToEl" name="relationToEl">
+                    <select class="custom-select px-4 form-control toolbar" id="relationToEl" name="relationToEl">
                         <option value="FIRST-CHILD">FIRST CHILD</option>
                         <option value="LAST-CHILD" selected>LAST CHILD</option>
                         <option value="PREV-SIBLING">PREV SIBLING</option>
                         <option value="NEXT-SIBLING">NEXT SIBLING</option>
                     </select>
-                    <div><span class="input-group-text"> of </span></div>
-                    <select class="custom-select px-4 form-control" id="elSelected" name="elSelected">
+                    <div><span class="input-group-text toolbar"> of </span></div>
+                    <select class="custom-select px-4 form-control toolbar" id="elSelected" name="elSelected">
                         <option value="-1:ROOT" selected>ROOT</option>
                         <option v-for="item in getAllActiveItemNames()" v-html="item" v-bind:value="item"></option>
                     </select>
-                    <div class="input-group-append">
-                        <button v-on:click="submitNewItem" class="btn btn-outline-secondary">Submit</button>
+                    <div class="input-group-append toolbar">
+                        <button v-on:click="submitNewItem" class="btn btn-outline-secondary" id="submitNewItemButton">Submit</button>
                     </div>
                 </div>
-                <div class="col col-lg-6">
-                    <div v-if="debug" class="input-group">
+                <div class="row">
+                    <div v-if="debug" class="input-group col col-sm-6">
                         <div class="input-group-prepend"><button v-on:click="loadState"
                                 class="btn btn-outline-secondary">loadState</button></div>
                         <div class="input-group-prepend"><button v-on:click="saveState"
@@ -117,11 +162,20 @@
                                 class="btn btn-outline-secondary">displayStatus</button></div>
                         <div class="input-group-prepend"><button v-on:click="resetData"
                                 class="btn btn-outline-secondary">resetData</button></div>
+                        <div class="input-group-prepend"><button v-on:click="logbutton"
+                                class="btn btn-outline-secondary">logfield</button></div>
                         <div class="input-group-text">Total: [[totalItems]]</div>
+                    </div>
+                    <div class="col col-sm-6">
+                        Last saved: [[lastSaved]]
                     </div>
                 </div>
             </div>
         </div>
+
+        <button class="btn btn-outline-secondary toggleEditBoxButton" v-on:click="toggleAddNew">
+            <i class="bi bi-plus-lg" id="addFieldButton"></i>
+        </button>
 
     </div>
 

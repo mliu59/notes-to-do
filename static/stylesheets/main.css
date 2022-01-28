@@ -15,7 +15,7 @@
 
 html {
     font-family: Arial, Helvetica, sans-serif;
-    font-size: 15px;
+    font-size: 14px;
     vertical-align: baseline;
 }
 
@@ -23,18 +23,33 @@ html {
     width: 50px;
 }
 
-.completedDate {
+.completedText {
     color: green;
     font-weight: 400;
 }
 
-.notCompletedDate {
+.warningText {
     color: red;
     font-weight: bold;
 }
 
+.warningButton {
+    background-color: red;
+    color: white;
+    font-weight: bold;
+}
+
+.grayedText {
+    color: #C0C0C0;
+}
+
 .arrowButtons {
-    padding: 2px !important;
+    padding: 0px !important;
+    max-width: 22px;
+}
+
+.UIbtn {
+    height: 28px !important;
 }
 
 main {
@@ -42,4 +57,35 @@ main {
     max-height: 100vh;
     overflow-x: auto;
     overflow-y: hidden;
+}
+
+.editBoxWrapper {
+    width: 85%;
+    margin: auto;
+    position: fixed;
+    z-index: 50000;
+    bottom: 0;
+    background-color: white;
+
+}
+
+.toggleEditBoxButton {
+    position: fixed;
+    z-index: 1000000;
+    right: 10px;
+    bottom: 10px;
+    background-color:#ECECEC;
+}
+
+.pt-xxl {
+    padding-bottom: 350px !important;
+}
+
+
+#mainContainer {
+    padding-bottom: 30px;
+}
+
+.toolbar {
+    font-size: 12px;
 }

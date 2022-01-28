@@ -4,6 +4,7 @@ import ast
 from datetime import datetime
 import os
 import glob
+import pickle
 
 filedir = "C:\\todo\\"
 fileprefix = "notes-todo-"
@@ -14,10 +15,10 @@ saveload_api = Blueprint("saveload", __name__, url_prefix="/api/saveload")
 def save_state():
     
     fullfilename = os.path.join(filedir, fileprefix + datetime.now().strftime("%Y-%m-%d-%H-%M")+".txt")
+    picklename = os.path.join(filedir, fileprefix + datetime.now().strftime("%Y-%m-%d-%H-%M")+".pickle")
 
-    file1 = open(fullfilename,"w")
-    file1.write(str(request.json))
-    file1.close()
+    with open(picklename, 'wb') as handle:
+        pickle.dump(request.json, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
     return "Done", 200
 
@@ -25,11 +26,9 @@ def save_state():
 @saveload_api.get('/load/')
 def load_state():
 
-    list_of_files = glob.glob(filedir + "*.txt") # * means all if need specific format then *.csv
+    list_of_files = glob.glob(filedir + "*.pickle") # * means all if need specific format then *.csv
     latest_file = max(list_of_files, key=os.path.getctime)
 
-    file1 = open(latest_file,"r")
-    saved_string = file1.readline()
-    JSONdata = ast.literal_eval(saved_string)
-    
-    return jsonify(JSONdata) 
+    with open(latest_file, 'rb') as handle:
+        print("Loaded pickle file")
+        return jsonify(pickle.load(handle))
